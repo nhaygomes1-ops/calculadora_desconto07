@@ -1,0 +1,84 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+
+export default function App() {
+  const [produto, setProduto] = useState('');
+  const [preco, setPreco] = useState('');
+  const [desconto, setDesconto] = useState('');
+  const [resultado, setResultado] = useState(null);
+  const [erro, setErro] = useState('');
+
+  const aplicarDesconto = () => {
+    const p = parseFloat(preco.replace(',', '.'));
+    const d = parseFloat(desconto.replace(',', '.'));
+
+    if (!produto.trim() || isNaN(p) || isNaN(d)) {
+      setErro('Preencha todos os campos corretamente.');
+      setResultado(null);
+      return;
+    }
+    if (p < 0 || d < 0 || d > 100) {
+      setErro('Preço deve ser >= 0 e desconto entre 0% e 100%.');
+      setResultado(null);
+      return;
+    }
+
+    setErro('');
+    const economia = p * (d / 100);
+    const precoFinal = p - economia;
+    setResultado({ produto, economia, precoFinal });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.titulo}>Calculadora de Desconto</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nome do produto"
+        value={produto}
+        onChangeText={setProduto}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Preço original (R$)"
+        keyboardType="numeric"
+        value={preco}
+        onChangeText={setPreco}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Percentual de desconto (%)"
+        keyboardType="numeric"
+        value={desconto}
+        onChangeText={setDesconto}
+      />
+
+      <TouchableOpacity style={styles.botao} onPress={aplicarDesconto}>
+        <Text style={styles.textoBotao}>Aplicar desconto</Text>
+      </TouchableOpacity>
+
+      {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+
+      {resultado && (
+        <View style={styles.card}>
+          <Text style={styles.textoCard}>Produto: {resultado.produto}</Text>
+          <Text style={styles.textoCard}>Economia: R$ {resultado.economia.toFixed(2)}</Text>
+          <Text style={styles.textoFinal}>Preço final: R$ {resultado.precoFinal.toFixed(2)}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f5f5f5' },
+  titulo: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  input: { backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 10, borderWidth: 1, borderColor: '#ccc' },
+  botao: { backgroundColor: '#28a745', padding: 15, borderRadius: 8, marginTop: 5 },
+  textoBotao: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 16 },
+  erro: { color: 'red', marginTop: 10, textAlign: 'center' },
+  card: { marginTop: 20, padding: 15, backgroundColor: '#fff', borderRadius: 8 },
+  textoCard: { fontSize: 16, marginBottom: 4 },
+  textoFinal: { fontSize: 18, fontWeight: 'bold', color: '#28a745', marginTop: 5 },
+});
